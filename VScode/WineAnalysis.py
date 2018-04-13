@@ -58,3 +58,61 @@ top_countries_plot = sns.countplot(x='country', data = top_wines)
 top_countries_plot.set_xticklabels(top_countries_plot.get_xticklabels(), rotation = 90)
 top_countries_plot.set_title(f'Total Wines rated over {top_range} per country')
 plt.savefig('top_countries.png', bbox_inches='tight')
+
+#Prolific Wines
+prolific_wineries_df = wine_data.loc[:,["title", "price", "points", "winery", "variety"]]
+prolific_wineries_df.head()
+
+#List of the most prolific wineries
+prolific_wineries = pd.DataFrame(prolific_wineries_df.winery.value_counts())
+prolific_wineries.head()
+
+#Average Rating of wines at Wines & Winemakers
+prolific_wineries_ww = prolific_wineries_df.loc[prolific_wineries_df["winery"] == "Wines & Winemakers", ['points']]
+avg_ww_rating = prolific_wineries_ww.points.mean()
+ww_rating = round(avg_ww_rating,3)
+ww_rating
+
+#Average Price of wines at Wines & Winemakers
+prolific_wineries_ww = prolific_wineries_df.loc[prolific_wineries_df["winery"] == "Wines & Winemakers", ['price']]
+avg_ww_price = prolific_wineries_ww.price.mean()
+ww_price = round(avg_ww_price,3)
+ww_price
+
+#Average rating of wine in original data set
+wine = wineries_df.points.mean()
+wine_avg_rating = round(wine,3)
+wine_avg_rating
+
+#Average price of wine in orginial data set
+wine_price = wineries_df.price.mean()
+wine_avg_price = round(wine_price,3)
+wine_avg_price
+
+#Most variations of wine at Wines & winemakers
+ww = prolific_wineries_df.loc[prolific_wineries_df["winery"] == "Wines & Winemakers", ['variety']]
+ww_df = pd.DataFrame(ww.variety.value_counts())
+ww_df
+
+pr = wineries_df.loc[wineries_df["variety"] == "Portuguese Red"]
+#Average rating of Portuguese Red at Wine & winemakers
+p_red = pr.points.mean()
+port_red = round(p_red,3)
+port_red
+
+#Average rating of Portuguese Red at Wine 
+pred = pr.price.mean()
+port_red_avg_price = round(pred,3)
+port_red_avg_price
+
+#_________
+
+# bougiest white wines (by points and price)
+whites_bougiest = whites_df.groupby(['country'])['points', 'price'].max()
+whites_b_sorted = whites_bougiest.sort_values('points', ascending = False)
+# bougiest red wines (by points and price)
+reds_bougiest = reds_df.groupby(['country'])['points', 'price'].max()
+reds_b_sorted = reds_bougiest.sort_values('points', ascending = False)
+bougiest_wines = whites_b_sorted.merge(reds_b_sorted, on='country')
+#rename columns
+bougiest_wines = bougiest_wines.rename(columns={'points': 'White Wine points', 'price': 'Red Wine price', '’})
