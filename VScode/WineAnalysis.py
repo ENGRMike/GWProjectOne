@@ -114,5 +114,108 @@ whites_b_sorted = whites_bougiest.sort_values('points', ascending = False)
 reds_bougiest = reds_df.groupby(['country'])['points', 'price'].max()
 reds_b_sorted = reds_bougiest.sort_values('points', ascending = False)
 bougiest_wines = whites_b_sorted.merge(reds_b_sorted, on='country')
+bougiest_wines.head()
 #rename columns
 bougiest_wines = bougiest_wines.rename(columns={'points': 'White Wine points', 'price': 'Red Wine price', '’})
+                                                
+#____Sentiment Analysis______
+import tweepy
+                                                
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+analyzer = SentimentIntensityAnalyzer()                                     
+from config import (consumer_key, consumer_secret, access_token, access_token_secret)
+
+auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token, access_token_secret)
+api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
+                                                
+both = ['Riesling', 'White Blend', 'Chardonnay', 'Sauvignon Blanc', 'Merlot', 'Sangiovese', 'Red Blend', 'Pinot Noir']
+
+df = pd.read_csv('../../gw/Project_1/winemag-data-130k-v2.csv')
+df = df.drop(columns=['Unnamed: 0'])
+df = df.dropna(axis=0, how='any')
+df = df[['points', 'taster', 'twitter handle']]
+df = df.loc[df['variety'].isin(both)]
+df.head()
+                                                
+# find tasters with over 1000 reviews
+taster_counts = pd.DataFrame(df['taster'].value_counts())
+taster_counts = taster_counts.reset_index()
+taster_counts = taster_counts.rename(columns={'taster':'ratings', 'index':'taster'})
+taster_counts_over_1000 = taster_counts.loc[taster_counts['ratings'] > 1000]
+tasters = taster_counts_over_1000['taster'].tolist()
+tasters.sort()                                                
+                                                
+# find tasters' corresponding twitter handles
+handle_df = df.set_index('taster')
+target_users = pd.DataFrame(handle_df.loc[tasters, 'twitter handle'])
+target_users = target_users['twitter handle'].unique()
+target_users = pd.Series(target_users).str.replace(u'\xa0', u'')                                                
+# find averages for tasters with over 1000 reviews
+ave_ratings = []
+for taster in tasters:
+    test_df = df.loc[df['taster'] == taster]
+    test_rating = test_df['points'].mean()
+    results_list = {'taster': taster, 'average rating': test_rating}
+    ave_ratings.append(results_list)
+ave_ratings_df = pd.DataFrame(ave_ratings).round(3)
+ave_ratings_df = ave_ratings_df[['taster', 'average rating']]
+ave_ratings_df['twitter handle'] = target_users
+ave_ratings_df
+                                                
+# bar chart for average points per taster
+x_axis = np.arange(len(tasters))
+plt.bar(ave_ratings_df['taster'], ave_ratings_df['average rating'])
+plt.xticks(rotation = 'vertical')
+plt.title('Average Rating Per Taster')
+plt.xlabel('Taster')
+plt.ylabel('Average Rating')
+plt.show()                                                
+                                                
+# sentiment analysis
+overall_compound = []
+
+for user in target_users:
+    compound_list = []
+    
+    for x in range(1):
+        public_tweets = api.user_timeline(user, page = 1)
+
+        for tweet in public_tweets:
+            results = analyzer.polarity_scores(tweet['text'])
+            compound_list.append(results['compound'])
+    
+    compound_results = {'username': user, 'compound': np.mean(compound_list)}
+    overall_compound.append(compound_results)
+
+sentiment_df = pd.DataFrame(overall_compound).round(3)
+sentiment_df['taster'] = tasters
+sentiment_df['average rating'] = ave_ratings_df['average rating']
+sentiment_df = sentiment_df[['taster', 'username', 'compound', 'average rating']]
+sentiment_df
+                                                
+#compound vs. average points (scatter)
+plt.figure(figsize=(10,6))
+plt.scatter(sentiment_df['compound'], sentiment_df['average rating'])
+plt.grid()
+plt.title('Average Rating for Tasters (with over 1000 reviews) Based on Sentiment Analysis')
+plt.xlabel('Tweet Polarity')
+plt.ylabel('Average Rating')
+plt.show()
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+ 
+                                                
+                                                
+                                                
+                                                
