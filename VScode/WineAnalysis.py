@@ -119,6 +119,7 @@ whites_merge = whites_b_sorted.merge(whites_value_counts, on='country')
 whites_merge
 
 # bougiest red wines (by points and price)
+<<<<<<< HEAD
 reds_bougiest = red_data.groupby(['country'])['points', 'price'].mean().round(2)
 reds_b_sorted = reds_bougiest.sort_values('price', ascending = False)
 reds_b_sorted = reds_b_sorted.reset_index()
@@ -128,6 +129,14 @@ reds_value_counts = reds_value_counts.reset_index()
 reds_value_counts = reds_value_counts.rename(columns={'country':'value count', 'index':'country'})
 reds_merge = reds_b_sorted.merge(reds_value_counts, on='country')
 reds_merge
+=======
+reds_bougiest = reds_df.groupby(['country'])['points', 'price'].max()
+reds_b_sorted = reds_bougiest.sort_values('points', ascending = False)
+bougiest_wines = whites_b_sorted.merge(reds_b_sorted, on='country')
+bougiest_wines.head()
+#rename columns
+bougiest_wines = bougiest_wines.rename(columns={'points_x': 'White Wine points', 'price_x': 'White Wine price', "points_y" : "Red Wine Points", "price_y":"Red Wine Points"})
+>>>>>>> f4704798f250b29ffd6db4158868561faf25da99
                                                 
 #____Sentiment Analysis______
 import tweepy
