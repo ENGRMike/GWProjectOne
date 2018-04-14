@@ -84,7 +84,7 @@ wine = wineries_df.points.mean()
 wine_avg_rating = round(wine,3)
 wine_avg_rating
 
-#Average price of wine in orginial data set
+#Average price of wine in orginal data set
 wine_price = wineries_df.price.mean()
 wine_avg_price = round(wine_price,3)
 wine_avg_price
@@ -105,18 +105,29 @@ pred = pr.price.mean()
 port_red_avg_price = round(pred,3)
 port_red_avg_price
 
-#_________
+#____Bougiest Wines_____
 
 # bougiest white wines (by points and price)
-whites_bougiest = whites_df.groupby(['country'])['points', 'price'].max()
+whites_bougiest = white_data.groupby(['country'])['points', 'price'].mean().round(2)
 whites_b_sorted = whites_bougiest.sort_values('points', ascending = False)
+whites_b_sorted = whites_b_sorted.reset_index()
+whites_b_sorted = whites_b_sorted.head(10)
+whites_value_counts = pd.DataFrame(white_data['country'].value_counts())
+whites_value_counts = whites_value_counts.reset_index()
+whites_value_counts = whites_value_counts.rename(columns={'country':'value count', 'index':'country'})
+whites_merge = whites_b_sorted.merge(whites_value_counts, on='country')
+whites_merge
+
 # bougiest red wines (by points and price)
-reds_bougiest = reds_df.groupby(['country'])['points', 'price'].max()
-reds_b_sorted = reds_bougiest.sort_values('points', ascending = False)
-bougiest_wines = whites_b_sorted.merge(reds_b_sorted, on='country')
-bougiest_wines.head()
-#rename columns
-bougiest_wines = bougiest_wines.rename(columns={'points': 'White Wine points', 'price': 'Red Wine price', '’})
+reds_bougiest = red_data.groupby(['country'])['points', 'price'].mean().round(2)
+reds_b_sorted = reds_bougiest.sort_values('price', ascending = False)
+reds_b_sorted = reds_b_sorted.reset_index()
+reds_b_sorted = reds_b_sorted.head(10)
+reds_value_counts = pd.DataFrame(red_data['country'].value_counts())
+reds_value_counts = reds_value_counts.reset_index()
+reds_value_counts = reds_value_counts.rename(columns={'country':'value count', 'index':'country'})
+reds_merge = reds_b_sorted.merge(reds_value_counts, on='country')
+reds_merge
                                                 
 #____Sentiment Analysis______
 import tweepy
