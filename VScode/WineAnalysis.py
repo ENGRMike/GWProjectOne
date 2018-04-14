@@ -116,7 +116,7 @@ reds_b_sorted = reds_bougiest.sort_values('points', ascending = False)
 bougiest_wines = whites_b_sorted.merge(reds_b_sorted, on='country')
 bougiest_wines.head()
 #rename columns
-bougiest_wines = bougiest_wines.rename(columns={'points': 'White Wine points', 'price': 'Red Wine price', '’})
+bougiest_wines = bougiest_wines.rename(columns={'points_x': 'White Wine points', 'price_x': 'White Wine price', "points_y" : "Red Wine Points", "price_y":"Red Wine Points"})
                                                 
 #____Sentiment Analysis______
 import tweepy
